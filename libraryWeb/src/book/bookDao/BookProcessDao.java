@@ -523,10 +523,10 @@ public class BookProcessDao {
             + mngUserId + "'),");
       }
       // 最後のカンマを削除する
-      int index = setSql.lastIndexOf(",");
+      int index = SBsetSql.lastIndexOf(",");
       SBsetSql.deleteCharAt(index);
       sql = "insert into T_LENDING_BOOK_TMP values";
-      sql += setSql;
+      sql += SBsetSql;
 
       // SQL確認用
       System.out.println(sql);
