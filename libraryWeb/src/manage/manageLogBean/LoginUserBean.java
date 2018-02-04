@@ -3,6 +3,12 @@ package manage.manageLogBean;
 import java.io.Serializable;
 
 // ログインユーザ情報取得とセット
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 LoginUserBean.java
+ * @description 管理ユーザ関連のパラメータを定義するクラス.
+ *
+ */
 public class LoginUserBean implements Serializable {
 
   private static final long serialVersionUID = 1L;

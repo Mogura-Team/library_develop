@@ -6,6 +6,11 @@ package common;
 
 import java.util.ArrayList;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 CommonMethod.java
+ * @description 共通で扱うメソッドを定義するクラス.
+ */
 public class CommonMethod {
   //配列からarraylistに変換
 

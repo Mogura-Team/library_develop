@@ -20,6 +20,11 @@ import common.Cnst;
 import common.CommonMethod;
 import common.FormCheck;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 BookProcessServlet.java
+ * @description 図書関連の遷移処理を行うクラス.
+ */
 @WebServlet("/BookProcess")
 public class BookProcessServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;

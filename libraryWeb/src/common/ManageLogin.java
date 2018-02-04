@@ -2,9 +2,11 @@ package common;
 
 import manage.manageLogBean.LoginUserBean;
 
+
 /**
- * ログイン処理クラス.<br/>
- * 今回は親クラスとして使用.
+ * @作成日 2018/02/04
+ * @ファイル名 ManageLogin.java
+ * @description 親クラス。ログイン処理を行うクラス
  */
 public class ManageLogin {
 
@@ -14,8 +16,7 @@ public class ManageLogin {
    * @projectPass: libraryWeb.common.ManageLogin.java
    * @param id
    * @param pass
-   * @return
-   * LoginUserBean
+   * @return LoginUserBean
    */
   public LoginUserBean getUserData(String id, String pass) {
 

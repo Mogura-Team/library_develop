@@ -4,25 +4,36 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import manage.manageLogBean.LoginUserBean;
-import manage.manageLogDao.ManageLoginDao;
+import manage.manageLogDao.ManageUserDao;
 
 import common.Cnst;
 import common.ManageLogin;
 
-public class ManageLoginDB extends ManageLogin {
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 ManageLoginDB.java
+ * @description 管理ユーザー関連の処理を行うクラス.
+ */
+public class ManageUserDB extends ManageLogin {
 
-  /* (非 Javadoc)
-   * @see common.ManageLogin#getUserData(java.lang.String, java.lang.String)
+  /**
+   * @method: getMngUserData
+   * @discription: 管理ユーザの検索処理を行う.
+   * @projectPass: libraryWeb.book.bookDB.BookProcessDB.java
+   * @param mngUserId
+   * @param mngUserPass
+   * @return void
+   * @throws SQLException
    */
-  public LoginUserBean getUserData(String mngUserId, String mngUserPass) {
+  public LoginUserBean getMngUserData(String mngUserId, String mngUserPass) {
 
     LoginUserBean mngBean = null;
-    ManageLoginDao mdao = null;
+    ManageUserDao mdao = null;
     ResultSet rs = null;
 
     try {
       //ManageLoginDaoクラスをインスタンス化
-      mdao = new ManageLoginDao();
+      mdao = new ManageUserDao();
       //管理ユーザ取得処理SQL
       rs = mdao.getMngUserDao(mngUserId, mngUserPass);
 

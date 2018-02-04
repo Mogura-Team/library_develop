@@ -10,6 +10,11 @@ import user.userDao.UserProcessDao;
 import common.Cnst;
 import commonJson.JsonUtil;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 UserProcessDB.java
+ * @description ユーザ関連処理を行うクラス.
+ */
 public class UserProcessDB {
   private int flag;
   private ResultSet rs;

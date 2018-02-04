@@ -21,8 +21,11 @@ import book.bookDB.BookProcessDB;
 import common.Cnst;
 import common.CommonBean;
 
+
 /**
- * Servlet implementation class ManagementServlet
+ * @作成日 2018/02/04
+ * @ファイル名 ManagementMenuServlet.java
+ * @description 基本的なメニューボタンの遷移処理を行うクラス.
  */
 @WebServlet("/ManagementMenu")
 public class ManagementMenuServlet extends HttpServlet {
@@ -30,7 +33,6 @@ public class ManagementMenuServlet extends HttpServlet {
 
   public ManagementMenuServlet() {
     super();
-
   }
 
   @Override
@@ -45,186 +47,185 @@ public class ManagementMenuServlet extends HttpServlet {
       LoginUserBean mngUserBean = (LoginUserBean) request.getSession(true)
           .getAttribute(Cnst.ATTR_MNG_USER_INFO.strType());
       mUserId = mngUserBean.getMngUserId();
-    }
-    RequestDispatcher rd; // 画面の情報
-    // 文字コード設定
-    request.setCharacterEncoding(Cnst.UTF8_CODE.strType());
+      RequestDispatcher rd; // 画面の情報
+      // 文字コード設定
+      request.setCharacterEncoding(Cnst.UTF8_CODE.strType());
 
-    String buttonLabel = request.getParameter(Cnst.PARAM_SUBMIT.strType());
+      String buttonLabel = request.getParameter(Cnst.PARAM_SUBMIT.strType());
 
+      // ユーザ登録ボタンを押した場合
+      if (Cnst.BTN_USER_REGISTRATION.strType().equals(buttonLabel)) {
 
-    // ユーザ登録ボタンを押した場合
-    if (Cnst.BTN_USER_REGISTRATION.strType().equals(buttonLabel)) {
+        // ユーザ一覧フラグセット
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_REGISTE_DISPLAY.strType());
 
-      // ユーザ一覧フラグセット
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_REGISTE_DISPLAY.strType());
+        rd = request.getRequestDispatcher(Cnst.USER_REGISTE_JSP.strType());
+        rd.forward(request, response);
+      }
 
-      rd = request.getRequestDispatcher(Cnst.USER_REGISTE_JSP.strType());
-      rd.forward(request, response);
-    }
+      // ユーザ削除ボタンを押した場合
+      if (Cnst.BTN_USER_DELETING.strType().equals(buttonLabel)) {
 
-    // ユーザ削除ボタンを押した場合
-    if (Cnst.BTN_USER_DELETING.strType().equals(buttonLabel)) {
+        UserProcessDB upDB = new UserProcessDB();
+        ArrayList<UserProcessBean> userBeanList = upDB.getUserList();
+        request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
 
-      UserProcessDB upDB = new UserProcessDB();
-      ArrayList<UserProcessBean> userBeanList = upDB.getUserList();
-      request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
+        // ユーザ削除フラグセット
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_DELETE_DISPLAY.strType());
 
-      // ユーザ削除フラグセット
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_DELETE_DISPLAY.strType());
+        rd = request.getRequestDispatcher(Cnst.USER_LIST.strType());
+        rd.forward(request, response);
+      }
 
-      rd = request.getRequestDispatcher(Cnst.USER_LIST.strType());
-      rd.forward(request, response);
-    }
+      // ユーザ一覧ボタンを押した場合
+      if (Cnst.BTN_USER_LIST.strType().equals(buttonLabel)) {
 
-    // ユーザ一覧ボタンを押した場合
-    if (Cnst.BTN_USER_LIST.strType().equals(buttonLabel)) {
+        UserProcessDB upDB = new UserProcessDB();
+        ArrayList<UserProcessBean> userBeanList = upDB.getUserList();
 
-      UserProcessDB upDB = new UserProcessDB();
-      ArrayList<UserProcessBean> userBeanList = upDB.getUserList();
+        request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
+        // ユーザ一覧フラグセット
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LIST_ONLY_DISPLAY.strType());
 
-      request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
-      // ユーザ一覧フラグセット
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LIST_ONLY_DISPLAY.strType());
+        rd = request.getRequestDispatcher(Cnst.USER_LIST.strType());
+        rd.forward(request, response);
+      }
 
-      rd = request.getRequestDispatcher(Cnst.USER_LIST.strType());
-      rd.forward(request, response);
-    }
+      // 貸出超過者一覧ボタンを押した場合
+      if (Cnst.BTN_LENDING_EXCESS_PERSON_LIST.strType().equals(buttonLabel)) {
 
-    // 貸出超過者一覧ボタンを押した場合
-    if (Cnst.BTN_LENDING_EXCESS_PERSON_LIST.strType().equals(buttonLabel)) {
+        BookProcessDB bpDB = new BookProcessDB();
+        ArrayList<CommonBean> commonBean = bpDB.LendingList();
 
-      BookProcessDB bpDB = new BookProcessDB();
-      ArrayList<CommonBean> commonBean = bpDB.LendingList();
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), commonBean);
 
-      request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), commonBean);
+        UserProcessDB upDB = new UserProcessDB();
+        ArrayList<UserProcessBean> userBeanList = upDB.getLendingUserList();
 
-      UserProcessDB upDB = new UserProcessDB();
-      ArrayList<UserProcessBean> userBeanList = upDB.getLendingUserList();
+        request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
 
-      request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
+        // 貸出超過者一覧フラグセット
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY.strType());
 
-      // 貸出超過者一覧フラグセット
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY.strType());
+        //現在の日付を取得
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(Cnst.DATE_FORMAT.strType());
+        String nowDate = sdf.format(c.getTime());
 
-      //現在の日付を取得
-      Calendar c = Calendar.getInstance();
-      SimpleDateFormat sdf = new SimpleDateFormat(Cnst.DATE_FORMAT.strType());
-      String nowDate = sdf.format(c.getTime());
+        request.setAttribute("nowDate", nowDate);
 
-      request.setAttribute("nowDate", nowDate);
-
-      rd = request.getRequestDispatcher(Cnst.EXCEEDING_PERSON_LIST_JSP.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.EXCEEDING_PERSON_LIST_JSP.strType());
+        rd.forward(request, response);
+      }
 
       // 図書登録ボタンを押した場合
-    if (Cnst.BTN_BOOK_REGISTRATION.strType().equals(buttonLabel)) {
+      if (Cnst.BTN_BOOK_REGISTRATION.strType().equals(buttonLabel)) {
 
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_REGISTE_DISPLAY.strType());
-      rd = request.getRequestDispatcher(Cnst.BOOK_REGISTER_JSP.strType());
-      rd.forward(request, response);
-    }
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_REGISTE_DISPLAY.strType());
+        rd = request.getRequestDispatcher(Cnst.BOOK_REGISTER_JSP.strType());
+        rd.forward(request, response);
+      }
 
-    // 図書貸出ボタンを押した場合
-    if (Cnst.BTN_BOOK_LENDING.strType().equals(buttonLabel)) {
+      // 図書貸出ボタンを押した場合
+      if (Cnst.BTN_BOOK_LENDING.strType().equals(buttonLabel)) {
 
-      BookProcessDB bpDB = new BookProcessDB();
-      ArrayList<BookProcessBean> bookBeanList = bpDB.getBookList();
+        BookProcessDB bpDB = new BookProcessDB();
+        ArrayList<BookProcessBean> bookBeanList = bpDB.getBookList();
 
-      request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bookBeanList);
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LEND_DISPLAY.strType());
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bookBeanList);
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LEND_DISPLAY.strType());
 
-      rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
+        rd.forward(request, response);
+      }
 
-    // 図書削除ボタンを押した場合
-    if (Cnst.BTN_BOOK_DELETING.strType().equals(buttonLabel)) {
+      // 図書削除ボタンを押した場合
+      if (Cnst.BTN_BOOK_DELETING.strType().equals(buttonLabel)) {
 
-      BookProcessDB bpDB = new BookProcessDB();
-      ArrayList<BookProcessBean> bookBean = bpDB.getBookList();
+        BookProcessDB bpDB = new BookProcessDB();
+        ArrayList<BookProcessBean> bookBean = bpDB.getBookList();
 
-      request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bookBean);
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_DELETE_DISPLAY.strType());
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bookBean);
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_DELETE_DISPLAY.strType());
 
-      rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
+        rd.forward(request, response);
+      }
 
-    // 図書一覧ボタンを押した場合
-    if (Cnst.BTN_BOOK_LIST.strType().equals(buttonLabel)) {
+      // 図書一覧ボタンを押した場合
+      if (Cnst.BTN_BOOK_LIST.strType().equals(buttonLabel)) {
 
-      BookProcessDB bpDB = new BookProcessDB();
-      ArrayList<BookProcessBean> bookBean = bpDB.getBookList();
+        BookProcessDB bpDB = new BookProcessDB();
+        ArrayList<BookProcessBean> bookBean = bpDB.getBookList();
 
-      request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bookBean);
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LIST_ONLY_DISPLAY.strType());
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bookBean);
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LIST_ONLY_DISPLAY.strType());
 
-      rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
+        rd.forward(request, response);
+      }
 
-    // 貸出中一覧ボタンを押した場合
-    if (Cnst.BTN_LENDING_WITHIN_LIST.strType().equals(buttonLabel)) {
+      // 貸出中一覧ボタンを押した場合
+      if (Cnst.BTN_LENDING_WITHIN_LIST.strType().equals(buttonLabel)) {
 
-      BookProcessDB bpDB = new BookProcessDB();
-      ArrayList<CommonBean> commonBean = bpDB.LendingList();
+        BookProcessDB bpDB = new BookProcessDB();
+        ArrayList<CommonBean> commonBean = bpDB.LendingList();
 
-      request.setAttribute(Cnst.ATTR_COMMON_BEAN.strType(), commonBean);
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LENDING_WITHIN_DISPLAY.strType());
+        request.setAttribute(Cnst.ATTR_COMMON_BEAN.strType(), commonBean);
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LENDING_WITHIN_DISPLAY.strType());
 
-      UserProcessDB upDB = new UserProcessDB();
-      ArrayList<UserProcessBean> userBean = upDB.getLendingUserList();
+        UserProcessDB upDB = new UserProcessDB();
+        ArrayList<UserProcessBean> userBean = upDB.getLendingUserList();
 
-      request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBean);
+        request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBean);
 
-      rd = request.getRequestDispatcher(Cnst.BOOK_LENDING_LIST_JSP.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.BOOK_LENDING_LIST_JSP.strType());
+        rd.forward(request, response);
+      }
 
-    // 一覧に戻るボタンを押した場合
-    if (Cnst.BTN_BACK_TO_LIST.strType().equals(buttonLabel)) {
+      // 一覧に戻るボタンを押した場合
+      if (Cnst.BTN_BACK_TO_LIST.strType().equals(buttonLabel)) {
 
-      //userDeleteConfirm.jsp画面の一覧に戻るボタンを押したときの処理
-      UserProcessDB upDB = new UserProcessDB();
-      ArrayList<UserProcessBean> bean = upDB.getUserList();
+        //userDeleteConfirm.jsp画面の一覧に戻るボタンを押したときの処理
+        UserProcessDB upDB = new UserProcessDB();
+        ArrayList<UserProcessBean> bean = upDB.getUserList();
 
-      request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bean);
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bean);
 
-      rd = request.getRequestDispatcher(Cnst.USER_LIST.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.USER_LIST.strType());
+        rd.forward(request, response);
+      }
 
-    // メニューに戻るボタンを押した場合
-    if (Cnst.BTN_BACK_TO_MENU.strType().equals(buttonLabel)) {
+      // メニューに戻るボタンを押した場合
+      if (Cnst.BTN_BACK_TO_MENU.strType().equals(buttonLabel)) {
 
-      rd = request.getRequestDispatcher(Cnst.MANAGEMENT_MENU_JSP.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.MANAGEMENT_MENU_JSP.strType());
+        rd.forward(request, response);
+      }
 
-    // ゲストボタンを押した場合
-    if (Cnst.BTN_GUEST.strType().equals(buttonLabel)) {
+      // ゲストボタンを押した場合
+      if (Cnst.BTN_GUEST.strType().equals(buttonLabel)) {
 
-      BookProcessDB upDB = new BookProcessDB();
-      ArrayList<BookProcessBean> bean = upDB.getBookList();
+        BookProcessDB upDB = new BookProcessDB();
+        ArrayList<BookProcessBean> bean = upDB.getBookList();
 
-      request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bean);
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bean);
 
-      rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
-      rd.forward(request, response);
-    }
+        rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
+        rd.forward(request, response);
+      }
 
-    // サインアップボタンを押した場合
-    if (Cnst.BTN_SIGNUP.strType().equals(buttonLabel)) {
+      // サインアップボタンを押した場合
+      if (Cnst.BTN_SIGNUP.strType().equals(buttonLabel)) {
 
-      BookProcessDB upDB = new BookProcessDB();
-      ArrayList<BookProcessBean> bean = upDB.getBookList();
+        BookProcessDB upDB = new BookProcessDB();
+        ArrayList<BookProcessBean> bean = upDB.getBookList();
 
-      request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bean);
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), bean);
 
-      rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
-      rd.forward(request, response);
+        rd = request.getRequestDispatcher(Cnst.BOOK_LIST_JSP.strType());
+        rd.forward(request, response);
+      }
     }
   }
 

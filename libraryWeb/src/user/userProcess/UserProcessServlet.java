@@ -18,6 +18,11 @@ import common.Cnst;
 import common.CommonMethod;
 import common.FormCheck;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 UserProcessServlet.java
+ * @description ユーザ関連の遷移処理を行うクラス.
+ */
 @WebServlet("/UserProcess")
 public class UserProcessServlet extends HttpServlet {
 

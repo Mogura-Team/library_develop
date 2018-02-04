@@ -2,6 +2,12 @@ package user.userBean;
 
 import java.io.Serializable;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 UserProcessBean.java
+ * @description ユーザ情報のパラメータを定義するクラス.
+ *
+ */
 public class UserProcessBean implements Serializable {
 
   /** ID **/

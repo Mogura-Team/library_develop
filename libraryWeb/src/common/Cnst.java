@@ -1,5 +1,11 @@
 package common;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 Cnst.java
+ * @description 定数定義を行うクラス.
+ *
+ */
 public enum Cnst {
 
 ///////////////////////////////////

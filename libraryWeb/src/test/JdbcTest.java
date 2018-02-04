@@ -35,7 +35,7 @@ public class JdbcTest {
 
         // 結果をコンソールに表示
         System.out.println(MNG_USER_ID + " "
-        + MNG_USER_NAME + " " + MNG_USER_PASS + " " + MNG_REGIST_DATE);
+            + MNG_USER_NAME + " " + MNG_USER_PASS + " " + MNG_REGIST_DATE);
       }
       // データベースから切断
       stmt.close();

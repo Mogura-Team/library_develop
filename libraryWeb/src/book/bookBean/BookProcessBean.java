@@ -2,6 +2,12 @@ package book.bookBean;
 
 import java.io.Serializable;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 BookProcessBean.java
+ * @description 図書情報のパラメータを定義するクラス.
+ *
+ */
 public class BookProcessBean implements Serializable {
   /** ID **/
   private String bookId;

@@ -9,6 +9,12 @@ import java.util.ArrayList;
 
 import common.ConnectionBean;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 BookProcessDao.java
+ * @description 図書関連のデータベースアクセスを行うクラス.
+ *
+ */
 public class BookProcessDao {
 
   /** UPDATE_TABLE_USER_STATUS **/

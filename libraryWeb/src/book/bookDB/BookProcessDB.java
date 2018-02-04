@@ -12,6 +12,11 @@ import book.bookDao.BookProcessDao;
 import common.Cnst;
 import common.CommonBean;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 BookProcessDB.java
+ * @description 図書関連処理を行うクラス.
+ */
 public class BookProcessDB {
   private ResultSet rs;
   private BookProcessDao bpDao;
@@ -19,14 +24,13 @@ public class BookProcessDB {
   private int flag;//判定フラグ
 
   /**
-   * @method: BookProcessDB
+   * @method: bookRegiste
    * @discription: 図書情報,貸出日、返却日管理の登録処理を行う
    * @projectPass: libraryWeb.book.bookDB.BookProcessDB.java
    * @param title
    * @param bookRegisteDate
-   * @return
+   * @return int
    * @throws SQLException
-   *           int
    */
   public int bookRegiste(String title, String bookRegisteDate) {
 
@@ -56,8 +60,7 @@ public class BookProcessDB {
    * @method: BookProcessDB
    * @discription: 図書情報取得処理を行う
    * @projectPass: libraryWeb.book.bookDB.BookProcessDB.java
-   * @return
-   *         ArrayList<BookProcessBean>
+   * @return ArrayList<BookProcessBean>
    */
   public ArrayList<BookProcessBean> getBookList() {
 
@@ -105,6 +108,7 @@ public class BookProcessDB {
    * @projectPass: libraryWeb.book.bookDB.BookProcessDB.java
    * @param userId
    * @param bookId
+   * @param mngUserId
    * @return int
    */
   public int lendRegiste(ArrayList<String> bookId, String userId, String mngUserId) {

@@ -1,10 +1,6 @@
 /book/
-/common/
-/commonJson/
-/ireport/
-/jUnitTest/
 /manage/
-/setUp/
-/test/
-/tmp
+/common/
 /user/
+/commonJson/
+/test/

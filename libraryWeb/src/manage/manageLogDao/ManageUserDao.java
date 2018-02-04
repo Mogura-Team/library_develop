@@ -8,7 +8,12 @@ import java.sql.SQLException;
 
 import common.ConnectionBean;
 
-public class ManageLoginDao {
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 ManageUserDao.java
+ * @description 管理ユーザ関連のデータベースアクセスを行うクラス.
+ */
+public class ManageUserDao {
   private Connection con = null;
   private ResultSet rs = null;
   private PreparedStatement ps = null;
@@ -32,7 +37,8 @@ public class ManageLoginDao {
       // データベースと接続
       con = DriverManager.getConnection(cb.getHost(), cb.getName(), cb.getPass());
       // SQL文を生成
-      ps = con.prepareStatement("select MNG_USER_NAME from t_mng_user_info where MNG_USER_ID = ? and MNG_USER_PASS = ?");
+      ps = con
+          .prepareStatement("select MNG_USER_NAME from t_mng_user_info where MNG_USER_ID = ? and MNG_USER_PASS = ?");
 
       // SQL文の「？」にIDとパスワードをセット
       ps.setString(1, mngUserId);

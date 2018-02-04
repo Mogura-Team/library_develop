@@ -9,6 +9,11 @@ import java.util.ArrayList;
 
 import common.ConnectionBean;
 
+/**
+ * @作成日 2018/02/04
+ * @ファイル名 UserProcessDao.java
+ * @description ユーザ関連のデータベースアクセスを行うクラス.
+ */
 public class UserProcessDao {
 
   /** UPDATE_TABLE_USER_STATUS **/

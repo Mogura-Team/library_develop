@@ -3,7 +3,9 @@ package common;
 import java.io.Serializable;
 
 /**
- * @クラス概要 主に図書,ユーザ,その他のパラメータを定義する
+ * @作成日 2018/02/04
+ * @ファイル名 CommonBean.java
+ * @description 図書,ユーザ,その他のパラメータを定義するクラス.
  *
  */
 public class CommonBean implements Serializable {
