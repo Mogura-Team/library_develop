@@ -1,15 +1,14 @@
-package manage.manageLogBean;
+package manage.manageBean;
 
 import java.io.Serializable;
 
 // ログインユーザ情報取得とセット
 /**
  * @作成日 2018/02/04
- * @ファイル名 LoginUserBean.java
+ * @ファイル名 ManageProcessBean.java
  * @description 管理ユーザ関連のパラメータを定義するクラス.
- *
  */
-public class LoginUserBean implements Serializable {
+public class ManageProcessBean implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -21,7 +20,7 @@ public class LoginUserBean implements Serializable {
 
   private String mngRegistDate;
 
-  public LoginUserBean() {
+  public ManageProcessBean() {
     this.mngUserId = ""; //ID
     this.mngUserName = ""; //名前
     this.mngUserAge = ""; //年齢

@@ -10,10 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import manage.manageLogBean.LoginUserBean;
+import manage.manageBean.ManageProcessBean;
 import user.userBean.UserProcessBean;
 import user.userDB.UserProcessDB;
-
 import common.Cnst;
 import common.CommonMethod;
 import common.FormCheck;
@@ -45,12 +44,12 @@ public class UserProcessServlet extends HttpServlet {
     CommonMethod commonMethod;
     // 文字コード設定
     request.setCharacterEncoding(Cnst.UTF8_CODE.strType());
-    // 押下ボタンの値を取得
+    // ボタン名称取得
     String buttonLabel = request.getParameter(Cnst.PARAM_SUBMIT.strType());
     // 管理ユーザ名格納用
     String mngUserId = null;
     // 管理ユーザ名取得
-    LoginUserBean mngUserBean = (LoginUserBean) request.getSession(true)
+    ManageProcessBean mngUserBean = (ManageProcessBean) request.getSession(true)
         .getAttribute(Cnst.ATTR_MNG_USER_INFO.strType());
     // 管理ユーザ名格納
     mngUserId = mngUserBean.getMngUserId();
@@ -105,14 +104,14 @@ public class UserProcessServlet extends HttpServlet {
     // 管理ユーザ名格納用
     String mngUserId = null;
     // 管理ユーザ名取得
-    LoginUserBean mngUserBean = (LoginUserBean) request.getSession(true)
+    ManageProcessBean mngUserBean = (ManageProcessBean) request.getSession(true)
         .getAttribute(Cnst.ATTR_MNG_USER_INFO.strType());
     // 管理ユーザ名格納
     mngUserId = mngUserBean.getMngUserId();
 
     // 文字コード設定
     request.setCharacterEncoding(Cnst.UTF8_CODE.strType());
-    // 押下ボタンの値を取得
+    // ボタン名称取得
     String buttonLabel = request.getParameter(Cnst.PARAM_SUBMIT.strType());
 
     // 画面移動の準備

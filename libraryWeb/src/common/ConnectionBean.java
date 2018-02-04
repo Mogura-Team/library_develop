@@ -12,12 +12,6 @@ public class ConnectionBean {
   private String name = "root";
   private String pass = "pass";
 
-  public ConnectionBean() {
-    this.driver = "";
-    this.name = "";
-    this.pass = "";
-    this.host = "";
-  }
   public String getDriver() {
     return driver;
   }

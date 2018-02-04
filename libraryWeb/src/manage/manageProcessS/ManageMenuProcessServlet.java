@@ -1,4 +1,4 @@
-package manage.manageLogS;
+package manage.manageProcessS;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import manage.manageLogBean.LoginUserBean;
+import manage.manageBean.ManageProcessBean;
 import user.userBean.UserProcessBean;
 import user.userDB.UserProcessDB;
 import book.bookBean.BookProcessBean;
@@ -24,14 +24,14 @@ import common.CommonBean;
 
 /**
  * @作成日 2018/02/04
- * @ファイル名 ManagementMenuServlet.java
+ * @ファイル名 ManageMenuProcessServlet.java
  * @description 基本的なメニューボタンの遷移処理を行うクラス.
  */
 @WebServlet("/ManagementMenu")
-public class ManagementMenuServlet extends HttpServlet {
+public class ManageMenuProcessServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
-  public ManagementMenuServlet() {
+  public ManageMenuProcessServlet() {
     super();
   }
 
@@ -44,13 +44,13 @@ public class ManagementMenuServlet extends HttpServlet {
       response.sendRedirect(Cnst.TIMEOUT_JSP.strType());
     } else {
       String mUserId = null;
-      LoginUserBean mngUserBean = (LoginUserBean) request.getSession(true)
+      ManageProcessBean mngUserBean = (ManageProcessBean) request.getSession(true)
           .getAttribute(Cnst.ATTR_MNG_USER_INFO.strType());
       mUserId = mngUserBean.getMngUserId();
       RequestDispatcher rd; // 画面の情報
       // 文字コード設定
       request.setCharacterEncoding(Cnst.UTF8_CODE.strType());
-
+      // ボタン名称取得
       String buttonLabel = request.getParameter(Cnst.PARAM_SUBMIT.strType());
 
       // ユーザ登録ボタンを押した場合

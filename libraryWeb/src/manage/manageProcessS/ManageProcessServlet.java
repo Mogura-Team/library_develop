@@ -1,4 +1,4 @@
-package manage.manageLogS;
+package manage.manageProcessS;
 
 import java.io.IOException;
 
@@ -10,27 +10,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import manage.manageLogBean.LoginUserBean;
-import manage.manageLogDB.ManageUserDB;
+import manage.manageBean.ManageProcessBean;
+import manage.manageDB.ManageProcessDB;
 
 import common.Cnst;
 
 /**
  * @作成日 2018/02/04
- * @ファイル名 ManagementServlet.java
+ * @ファイル名 ManageProcessServlet.java
  * @description ログイン時のセッション生成,<br>
  *              ログアウト時のセッション破棄,<br>
  *              その他の遷移処理を行う.
  */
 @WebServlet("/Management")
-public class ManagementServlet extends HttpServlet {
+public class ManageProcessServlet extends HttpServlet {
   HttpSession session;
   RequestDispatcher rd;
 
   /*
    * コンストラクタ
    */
-  public ManagementServlet() {
+  public ManageProcessServlet() {
     super();
   }
 
@@ -43,7 +43,7 @@ public class ManagementServlet extends HttpServlet {
 
     // 文字コード設定
     request.setCharacterEncoding(Cnst.UTF8_CODE.strType());
-    // クリックされたボタンの判定
+    // ボタン名称取得
     String buttonLabel = request.getParameter(Cnst.PARAM_SUBMIT.strType());
 
     //画面移動の準備
@@ -59,10 +59,10 @@ public class ManagementServlet extends HttpServlet {
       String mngUserPass = request.getParameter(Cnst.PARAM_MNG_USER_PASS.strType());
 
       //ログイン処理クラスをインスタンス化
-      ManageUserDB login = new ManageUserDB();
+      ManageProcessDB login = new ManageProcessDB();
 
       // ユーザ情報をモデルに格納
-      LoginUserBean MngBean = login.getUserData(mngUserId, mngUserPass);
+      ManageProcessBean MngBean = login.getMngUserData(mngUserId, mngUserPass);
 
       //管理ユーザの情報を判定
       if (MngBean != null) {

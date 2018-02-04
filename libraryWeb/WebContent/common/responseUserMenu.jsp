@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<jsp:useBean id="mng_user_info" scope="session" class="manage.manageLogBean.LoginUserBean" />
+<jsp:useBean id="mng_user_info" scope="session" class="manage.manageBean.ManageProcessBean" />
 <!DOCTYPE html>
 <html>
 <head>

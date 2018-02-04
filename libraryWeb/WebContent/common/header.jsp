@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"%>
-<jsp:useBean id="mng_user_info" scope="session" class="manage.manageLogBean.LoginUserBean" />
+<jsp:useBean id="mng_user_info" scope="session" class="manage.manageBean.ManageProcessBean" />
 <%-- Java入門 ヘッダー画面 --%>
 <div align="right" id="loginNow">
  <%-- ログイン済みの場合はIDを表示 --%>

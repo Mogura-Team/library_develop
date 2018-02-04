@@ -1,6 +1,6 @@
 package common;
 
-import manage.manageLogBean.LoginUserBean;
+import manage.manageBean.ManageProcessBean;
 
 
 /**
@@ -18,9 +18,9 @@ public class ManageLogin {
    * @param pass
    * @return LoginUserBean
    */
-  public LoginUserBean getUserData(String id, String pass) {
+  public ManageProcessBean getMngUserData(String id, String pass) {
 
-    LoginUserBean bean = new LoginUserBean();
+    ManageProcessBean bean = new ManageProcessBean();
 
     // 引数のIDとパスワードを判定
     if ("web01".equals(id) && "password".equals(pass)) {

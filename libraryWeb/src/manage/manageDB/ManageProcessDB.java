@@ -1,20 +1,20 @@
-package manage.manageLogDB;
+package manage.manageDB;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import manage.manageLogBean.LoginUserBean;
-import manage.manageLogDao.ManageUserDao;
+import manage.manageBean.ManageProcessBean;
+import manage.manageDao.ManageProcessDao;
 
 import common.Cnst;
 import common.ManageLogin;
 
 /**
  * @作成日 2018/02/04
- * @ファイル名 ManageLoginDB.java
+ * @ファイル名 ManageProcessDB.java
  * @description 管理ユーザー関連の処理を行うクラス.
  */
-public class ManageUserDB extends ManageLogin {
+public class ManageProcessDB extends ManageLogin {
 
   /**
    * @method: getMngUserData
@@ -25,21 +25,21 @@ public class ManageUserDB extends ManageLogin {
    * @return void
    * @throws SQLException
    */
-  public LoginUserBean getMngUserData(String mngUserId, String mngUserPass) {
+  public ManageProcessBean getMngUserData(String mngUserId, String mngUserPass) {
 
-    LoginUserBean mngBean = null;
-    ManageUserDao mdao = null;
+    ManageProcessBean mngBean = null;
+    ManageProcessDao mdao = null;
     ResultSet rs = null;
 
     try {
       //ManageLoginDaoクラスをインスタンス化
-      mdao = new ManageUserDao();
+      mdao = new ManageProcessDao();
       //管理ユーザ取得処理SQL
       rs = mdao.getMngUserDao(mngUserId, mngUserPass);
 
       while (rs.next()) {
         //検索結果が存在する場合はbeanに値をセット（結果が1件しか返らないことを想定）
-        mngBean = new LoginUserBean();
+        mngBean = new ManageProcessBean();
         mngBean.setMngUserId(mngUserId);
         mngBean.setMngUserName(rs.getString(Cnst.PARAM_MNG_USER_NAME.strType()));
       }

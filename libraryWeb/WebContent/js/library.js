@@ -476,7 +476,7 @@ function userActiveDisplayChange(){
     // ユーザ一覧の場合
     case PARAM_LIST_ONLY_DISPLAY :
       thisButton = $(PARAM_ID_ACTIVE1);
-      titleText = "ユーザリスト";
+      titleText = "ユーザ一覧";
       $("th:eq(0)").text("ID");
       $("th:eq(1)").text("ランク");
       $('#last-tr').find("th:eq(0)").text("ID");

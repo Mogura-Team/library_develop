@@ -1,4 +1,4 @@
-package manage.manageLogDao;
+package manage.manageDao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,19 +10,19 @@ import common.ConnectionBean;
 
 /**
  * @作成日 2018/02/04
- * @ファイル名 ManageUserDao.java
+ * @ファイル名 ManageProcessDao.java
  * @description 管理ユーザ関連のデータベースアクセスを行うクラス.
  */
-public class ManageUserDao {
+public class ManageProcessDao {
   private Connection con = null;
   private ResultSet rs = null;
   private PreparedStatement ps = null;
   public ConnectionBean cb = new ConnectionBean();
 
   /**
-   * @method: ManageLoginDao
+   * @method: getMngUserDao
    * @discription: 管理ユーザ情報を取得
-   * @projectPass: libraryWeb.manage.manageLogDao.ManageLoginDao.java
+   * @projectPass: libraryWeb.manage.manageDao.ManageProcessDao.java
    * @param mngUserId
    * @param mngUserPass
    * @return ResultSet
