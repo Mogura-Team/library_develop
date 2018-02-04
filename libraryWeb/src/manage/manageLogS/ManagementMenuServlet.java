@@ -57,7 +57,7 @@ public class ManagementMenuServlet extends HttpServlet {
     if (Cnst.BTN_USER_REGISTRATION.strType().equals(buttonLabel)) {
 
       // ユーザ一覧フラグセット
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_REGISTE_COMPLETED.strType());
+      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_REGISTE_DISPLAY.strType());
 
       rd = request.getRequestDispatcher(Cnst.USER_REGISTE_JSP.strType());
       rd.forward(request, response);
@@ -71,7 +71,7 @@ public class ManagementMenuServlet extends HttpServlet {
       request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
 
       // ユーザ削除フラグセット
-      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_DELETE_COMPLETED.strType());
+      request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_DELETE_DISPLAY.strType());
 
       rd = request.getRequestDispatcher(Cnst.USER_LIST.strType());
       rd.forward(request, response);
