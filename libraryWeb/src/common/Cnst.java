@@ -27,6 +27,13 @@ public enum Cnst {
   INT_ONE(1),
 
   /**
+   * @フラグ定数 INT_TWO<br>
+   *
+   * @値 数値の２
+   */
+  INT_TWO(2),
+
+  /**
    * @フラグ定数 STRINT_ZERO<br>
    *
    * @値 文字の０

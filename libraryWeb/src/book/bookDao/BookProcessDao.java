@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import common.Cnst;
 import common.ConnectionBean;
 
 /**
@@ -18,22 +19,25 @@ import common.ConnectionBean;
 public class BookProcessDao {
 
   /** UPDATE_TABLE_USER_STATUS **/
-  final String UPDATE_T_USER_STATUS = "updateTUserStatus";
+  final String UPDATE_T_USER_STATUS = "update_t_user_status";
 
   /** UPDATE_T_BOOK_STATUS **/
-  final String UPDATE_T_BOOK_STATUS = "updateTBookStatus";
+  final String UPDATE_T_BOOK_STATUS = "update_t_book_status";
 
   /** DELETE_T_BOOK_STATUS **/
-  final String DELETE_T_BOOK_STATUS = "deleteTBookStatus";
+  final String DELETE_T_BOOK_STATUS = "delete_t_book_status";
 
   /** DELETE_TABLE_BOOK_INFO **/
-  final String DELETE_T_BOOK_INFO = "deleteTBookInfo";
+  final String DELETE_T_BOOK_INFO = "delete_t_book_info";
 
   /** DELETE_TABLE_USER_INFO **/
-  final String DELETE_T_USER_INFO = "deleteTUserInfo";
+  final String DELETE_T_USER_INFO = "delete_t_user_info";
 
   /** INSERT_T_LENDING_BOOK_TMP **/
-  final String INSERT_T_LENDING_BOOK_TMP = "insertTLendingBookTmp";
+  final String INSERT_T_LENDING_BOOK_TMP = "insert_t_lending_book_tmp";
+
+  /** DELETE_T_LENDING_BOOK_TMP **/
+  final String DELETE_T_LENDING_BOOK_TMP = "delete_t_lending_book_tmp";
 
   private Connection con = null;
   private PreparedStatement ps = null;
@@ -208,9 +212,6 @@ public class BookProcessDao {
    * @projectPass: libraryWeb.book.bookDao.BookProcessDao.java
    * @param userId
    * @param bookId
-   * @param lendingDate
-   * @param returnDate
-   * @param mngUserId
    * @return int
    * @throws SQLException
    */
@@ -233,7 +234,7 @@ public class BookProcessDao {
       // makeSqlメソッドの判定用
       param = UPDATE_T_BOOK_STATUS;
       // SQL文を生成
-      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, null ,null, null, param));
+      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, param));
       // SQLを実行
       flag = ps.executeUpdate();
 
@@ -241,17 +242,16 @@ public class BookProcessDao {
       // makeSqlメソッドの判定用
       param = UPDATE_T_USER_STATUS;
       // SQL文を生成
-      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, null ,null, null, param));
-      // SQL文の「？」に変数をセット
-      ps.setString(1, userId);
+      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, param));
+
       // SQLを実行
       flag = ps.executeUpdate();
 
       //貸出中の情報を削除する
       // makeSqlメソッドの判定用
-      param = INSERT_T_LENDING_BOOK_TMP;
+      param = DELETE_T_LENDING_BOOK_TMP;
       // SQL文を生成
-      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, null ,null, null, param));
+      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, param));
       // SQLを実行
       flag = ps.executeUpdate();
 
@@ -458,6 +458,7 @@ public class BookProcessDao {
       questions.append(",?");
     }
     String sql = setSql + questions.toString().replaceFirst(",", "") + ")";
+    // SQL確認用
     System.out.println(sql);
     return sql;
   }
@@ -485,18 +486,19 @@ public class BookProcessDao {
       for (int count = 0; count < bookId.size(); count++) {
         setSql += " WHEN " + bookId.get(count) + " THEN CONCAT(BOOK_LEND_HISTORY, '" + userId + ",')";
       }
-      setSql += "END" +
-          ", BOOK_NUM_LENDING = BOOK_NUM_LENDING + 1" +
-          ", BOOK_LEND_STATUS = 0" +
-          " WHERE BOOK_ID IN (";
+      setSql += "END"
+             + ", BOOK_NUM_LENDING = BOOK_NUM_LENDING + 1"
+             + ", BOOK_LEND_STATUS = 1"
+             + " WHERE BOOK_ID IN (";
 
 
       for (int count = 0; count < bookId.size(); count++) {
         questions.append(",'" + bookId.get(count) + "'");
       }
       sql = setSql + questions.toString().replaceFirst(",", "") + ")";
-
+      // SQL確認用
       System.out.println(sql);
+      return sql;
     }
 
     if (UPDATE_T_USER_STATUS.equals(param)) {
@@ -519,6 +521,7 @@ public class BookProcessDao {
 
       // SQL確認用
       System.out.println(sql);
+      return sql;
     }
     if (INSERT_T_LENDING_BOOK_TMP.equals(param)) {
       // SQLセット用
@@ -536,6 +539,7 @@ public class BookProcessDao {
 
       // SQL確認用
       System.out.println(sql);
+      return sql;
     }
     return sql;
   }
@@ -548,70 +552,94 @@ public class BookProcessDao {
    * @param param
    * @return String
    */
-  public String makeReturnRegisteSql(String userId, ArrayList<String> bookId,
-      String lendingDate, String returnDate, String mngUserId,String param) {
+  public String makeReturnRegisteSql(String userId, ArrayList<String> bookId,String param) {
     // SQLセット用
-    String setSql = null;
+    String setSql = "";
     // sql文格納
-    String sql = null;
+    String sql = "";
     // SQLセット用
     StringBuffer SBsetSql = new StringBuffer();
     //
     if (UPDATE_T_BOOK_STATUS.equals(param)) {
-      setSql = "update T_BOOK_STATUS set BOOK_LEND_HISTORY = case BOOK_ID";
+      SBsetSql.append("UPDATE T_BOOK_STATUS"
+                    +" SET"
+                      +" book_lend_status = CASE"
+                    +" WHEN book_id =");
 
       for (int count = 0; count < bookId.size(); count++) {
-        setSql += " WHEN " + bookId.get(count) + " THEN CONCAT(BOOK_LEND_HISTORY, '" + userId + ",')";
+        SBsetSql.append(" ('" + bookId.get(count) + "'OR");
       }
-      setSql += "END" +
-          ", BOOK_NUM_LENDING = BOOK_NUM_LENDING + 1" +
-          ", BOOK_LEND_STATUS = 0" +
-          " WHERE BOOK_ID IN (";
 
+      // 最後のORを削除する
+      int index = SBsetSql.lastIndexOf("OR");
+      SBsetSql.delete(index,index + Cnst.INT_TWO.intType());
 
+      SBsetSql.append(")THEN 0 end WHERE book_id IN(");
       for (int count = 0; count < bookId.size(); count++) {
-        SBsetSql.append(",'" + bookId.get(count) + "'");
+        SBsetSql.append("'"+ bookId.get(count)+"',)");
       }
-      sql = setSql + SBsetSql.toString().replaceFirst(",", "") + ")";
+      // 最後のカンマを削除する
+      index = SBsetSql.lastIndexOf(",");
+      SBsetSql.deleteCharAt(index);
+
+      sql += SBsetSql;
 
       System.out.println(sql);
+      return sql;
     }
 
     if (UPDATE_T_USER_STATUS.equals(param)) {
 
-      // 借りる本数用
-      int numBook = 0;
-      // 図書ID連列用
-      StringBuffer bookIdJoin = new StringBuffer();
-      // bookIdのサイズ分ループ処理
-      for (int count = 0; count < bookId.size(); count++) {
-        bookIdJoin.append("," + bookId.get(count));
-      }
-      // 最初のカンマを削除する
-      String setBookId = bookIdJoin.toString().replaceFirst(",", "") + "";
-      // 本数取得
-      numBook = bookId.size();
+      sql ="UPDATE T_USER_STATUS tus"
+         +" SET"
+           +" tus.delay_num = tus.delay_num + (SELECT"
+           +" COUNT(count.book_id)"
+           +" FROM"
+             +" (SELECT"
+             +" tlbt.*"
+             +" FROM"
+             +" T_LENDING_BOOK_TMP tlbt"
+             +" WHERE"
+             +" tlbt.user_id = '"+userId+"') count"
+         +" WHERE";
 
-      sql = "update T_USER_STATUS set USER_HISTORY = '" + setBookId + "',"
-          + "user_num_lending = user_num_lending + " + numBook + " where user_id = ?";
+     // 図書数分生成
+     for (int count = 0; count < bookId.size(); count++) {
+        SBsetSql.append("(count.book_id ='" + bookId.get(count) + "'AND count.return_date < DATE(NOW()))) OR");
+      }
+
+      // 最後のORを削除する
+      int index = SBsetSql.lastIndexOf("OR");
+      SBsetSql.delete(index,index + Cnst.INT_TWO.intType());
+
+      SBsetSql.append(" WHERE tus.user_id = '"+userId+"'");
+      sql += SBsetSql;
+
 
       // SQL確認用
       System.out.println(sql);
+      return sql;
     }
-    if (INSERT_T_LENDING_BOOK_TMP.equals(param)) {
-      // 借りる本数分生成
+    if (DELETE_T_LENDING_BOOK_TMP.equals(param)) {
+      sql ="delete"
+         +" FROM"
+           +" T_LENDING_BOOK_TMP"
+         +" WHERE";
+
+      // 図書数分生成
       for (int count = 0; count < bookId.size(); count++) {
-        SBsetSql.append("('" + bookId.get(count) + "','" + userId + "','" + lendingDate + "','" + returnDate + "','"
-            + mngUserId + "'),");
+        SBsetSql.append("(user_id = '"+ userId +"' AND book_id = '"+ bookId.get(count) +"')OR");
       }
-      // 最後のカンマを削除する
-      int index = setSql.lastIndexOf(",");
-      SBsetSql.deleteCharAt(index);
-      sql = "insert into T_LENDING_BOOK_TMP values";
-      sql += setSql;
+
+      // 最後のORを削除する
+      int index = SBsetSql.lastIndexOf("OR");
+      SBsetSql.delete(index,index + Cnst.INT_TWO.intType());
+
+      sql += SBsetSql;
 
       // SQL確認用
       System.out.println(sql);
+      return sql;
     }
     return sql;
   }
