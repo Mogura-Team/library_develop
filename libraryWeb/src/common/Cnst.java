@@ -415,6 +415,13 @@ public enum Cnst {
    */
   PARAM_YEAR_PUBLICATION("year_publication"),
 
+  /**
+   * @パラメータ定数 COUNT<br>
+   *
+   * @値 count
+   */
+  PARAM_COUNT("count"),
+
 ///////////////////////////////////
 //属性名定数
 ///////////////////////////////////

@@ -300,24 +300,34 @@
    * @値 0
    */
   const INT_ZERO = 0;
+
   /**
    * @共通定数 INT_TWO<br>
    *
    * @値 1
    */
   const INT_ONE = 1;
+
   /**
    * @共通定数 INT_TWO<br>
    *
    * @値 2
    */
   const INT_TWO = 2;
+
   /**
    * @共通定数 INT_THREE<br>
    *
    * @値 3
    */
   const INT_THREE = 3;
+
+  /**
+   * @共通定数 INT_FOR<br>
+   *
+   * @値 4
+   */
+  const INT_FOR = 4;
 
 ///////////////////////////////////
 //グローバル変数
@@ -389,13 +399,18 @@ function dataTablesLanguage(){
  * @param:
  * @returns:void
  */
-function tableRelatedFunctionCall(table, displayInfo) {
+function tableRelatedFunctionCall(table, json, displayInfo) {
+
   // ユーザ一覧,図書一覧,貸出中,貸出画面の場合
   if(displayInfo == PARAM_LIST_ONLY_DISPLAY || displayInfo == PARAM_LEND_DISPLAY
       || displayInfo == PARAM_LENDING_WITHIN_DISPLAY){
-    tableRelatedFunction(displayInfo);
+    tableRelatedFunction(displayInfo, null);
   }
 
+  // 超過者一覧画面の場合
+  if (displayInfo == PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY) {
+    tableRelatedFunction(displayInfo, json);
+  }
 }
 /**
  * テーブル上で背景色チェンジ,ポップオーバー表示,クリックでモーダル呼び出し.<br>
@@ -404,7 +419,7 @@ function tableRelatedFunctionCall(table, displayInfo) {
  * @param:
  * @returns:void
  */
-function tableRelatedFunction(displayInfo) {
+function tableRelatedFunction(displayInfo, json) {
   var table = null;
   var flg = INT_ZERO;// 分岐フラグ用
   //ユーザ一覧の場合
@@ -426,6 +441,12 @@ function tableRelatedFunction(displayInfo) {
     flg = INT_THREE;
     table = $("#lending");// テーブルDOM
   }
+  //超過者一覧の場合
+  if(($("#user").length) && (displayInfo == PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY)){
+    flg = INT_FOR;
+    table = $("#user");// テーブルDOM
+  }
+
   // テーブル上で背景色を変える
   $(table).on({"mouseenter": function(){
       $(this).css("cursor", "pointer");
@@ -439,14 +460,35 @@ function tableRelatedFunction(displayInfo) {
 
   // テーブル上でポップオーバー
   $(table).on({"mouseenter": function(){
+
     var data = null;
     $(this).attr('title','詳細表示');
+
     //クリックでモーダル呼び出し
     $(table).on('click','tbody tr',function() {
-      data = $.parseJSON($(this).find('input:eq(0)').val());
+
       // ユーザ一覧,図書一覧,貸出確認,貸出中一覧の場合,モーダル表示
       if((displayInfo == PARAM_LIST_ONLY_DISPLAY) || (displayInfo == PARAM_LEND_DISPLAY)
           || (displayInfo == PARAM_LENDING_WITHIN_DISPLAY)){
+
+        // ヒドゥン要素のテーブル情報を格納する
+        data = $.parseJSON($(this).find('input:eq(0)').val());
+        DisplayModal(data,flg);
+      }
+
+      //超過者一覧の場合
+      if(displayInfo == PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY){
+
+        // td要素のユーザIDを格納する
+        var userId = $(this).find('td:eq(1)').text();
+        var userName = $(this).find('td:eq(2)').text();
+
+        // クリックしたユーザーIDに紐づいた図書情報を格納する
+        data = json.filter(function(item){
+          if (item.user_id == userId) return true;
+        });
+        data[0].user_name = userName;
+
         DisplayModal(data,flg);
       }
     });
@@ -478,14 +520,19 @@ function userActiveDisplayChange(){
       thisButton = $(PARAM_ID_ACTIVE1);
       titleText = "ユーザ一覧";
       $("th:eq(0)").text("ID");
-      $("th:eq(1)").text("ランク");
+      $("th:eq(1)").text("総貸出数");
       $('#last-tr').find("th:eq(0)").text("ID");
-      $('#last-tr').find("th:eq(1)").text("ランク");
+      $('#last-tr').find("th:eq(1)").text("総貸出数");
       break;
 
-    // 貸出超過者一覧の場合
+    // 超過者一覧の場合
     case PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY :
       thisButton = $(PARAM_ID_ACTIVE2);
+      titleText = "超過者一覧";
+      $("th:eq(0)").text("遅延図書数");
+      $("th:eq(1)").text("ID");
+      $('#last-tr').find("th:eq(0)").text("遅延図書数");
+      $('#last-tr').find("th:eq(1)").text("ID");
       break;
 
     // ユーザランキングの場合
@@ -515,7 +562,7 @@ function userActiveDisplayChange(){
 }
 
 /**
- * ユーザリスト画面<br>
+ * ユーザ一覧画面<br>
  * テーブルにユーザ情報を表示する.<br>
  *
  * @memberOf; libraryWeb.js.library.js<br>
@@ -543,6 +590,43 @@ function userListdataTablesShow(userInfoJson){
                  i++;
                    return '<td tabindex="0" aria-controls="user" rowspan="1" colspan="1" aria-label="ID: activate to sort column ascending">'+data['userId']+'<input type="hidden" name="id[]" value='
                       + $('<div/>').text(JSON.stringify(data)).html() + '></td>';
+               }
+             }],
+             select: {
+               style:    'os',
+               selector: 'td:first-child'
+           },
+  'order': [1, 'asc']
+ });
+  return table;
+}
+/**
+ * 貸出超過者一覧画面<br>
+ * テーブルにユーザ情報を表示する.<br>
+ *
+ * @memberOf; libraryWeb.js.library.js<br>
+ * @param:json 形式のユーザ情報<br>
+ * @returns:void
+ */
+function LendingExcessPersonListdataTablesShow(userInfoJson){
+  var table = $('#user').DataTable({
+    select: true,
+    stateSave: true,
+    data: userInfoJson,
+    columns: [
+              { data:  null},
+              { data: 'userId'},
+              { data: 'userName' },
+              { data: 'userAddress' },
+              { data: 'userSexKbn' },
+              { data: 'userAge' },
+             ],
+             'columnDefs': [{
+               'targets': 0,
+               'className': 'sorting',
+               'render': function (data, type, full, meta){
+                 i++;
+                   return '<td tabindex="0" aria-controls="user" rowspan="1" colspan="1" aria-label="ID: activate to sort column ascending">'+data['bookId']+'</td>';
                }
              }],
              select: {
@@ -591,7 +675,7 @@ function deleteUserListdataTablesShow(userInfoJson){
 }
 
 /**
- * Select all押下でチェック,非チェックをする<br>
+ * チェックオール押下でチェック,非チェックをする<br>
  *
  * @memberOf: libraryWeb.js.library.js.<br>
  * @param: tableのDOM要素.<br>
@@ -615,6 +699,33 @@ function dataTableUserCheckAcquisition(table){
       if(el && el.checked && ('indeterminate' in el)){
          // Set visual state of "Select all" control
          // as 'indeterminate'
+         el.indeterminate = true;
+      }
+    }
+  });
+}
+/**
+ * 超過者一覧のモーダルチェックオール押下でチェック,非チェックをする<br>
+ *
+ * @memberOf: libraryWeb.js.library.js.<br>
+ * @returns: void
+ */
+function LendingExcessModalCheckAcquisition(){
+  var table = $('#modal-table');
+  // "Select all"コントロールをクリック
+  $('#check-all').on('click', function(){
+    // Check/uncheck all checkboxes in the table
+    var rows = $(table).rows(0).nodes();
+    $('input[type="checkbox"]', rows).prop('checked', this.checked);
+  });
+
+  // 「すべて選択」コントロールの状態を設定するには、チェックボックスをクリック
+  $('#modal-table tbody').on('change', 'input[type="checkbox"]', function(){
+    // チェックボックスがオフの場合
+    if(!this.checked){
+      var el = $('#check-all').get(0);
+      // 「すべて選択」コントロールがチェックされ、「不確定」プロパティがある場合
+      if(el && el.checked && ('indeterminate' in el)){
          el.indeterminate = true;
       }
     }
@@ -688,12 +799,30 @@ function CheckedUserInformation(){
 function DisplayModal(data, flg) {
   var html = null;
   var body = $('.modal-body');
-  html = ModalHTMLGeneration(flg);
 
-  $(body).appendTo('.modal-body').html(html);
-  var size = Object.keys(data).length;
-  SetParameterModal(data, flg);
-     console.log( data);
+  // ユーザ一覧,図書一覧,貸出確認,貸出中一覧の場合,モーダル表示
+  if((flg == INT_ZERO) || (flg == INT_ONE)
+      || (flg == INT_THREE)){
+    // html生成
+    html = ModalHTMLGeneration(flg, null);
+    // 生成したhtmlを追加
+    $(body).appendTo('.modal-body').html(html);
+    // 生成したhtmlにパラメータをセット
+    SetParameterModal(data, flg, null);
+  }
+
+  //超過者一覧の場合
+  if(flg == INT_FOR){
+    // 遅延図書数をセット
+    var size = Object.keys(data).length;
+    // html生成
+    html = ModalHTMLGeneration(flg, size);
+    // 生成したhtmlを追加
+    $(body).find('tbody').html(html);
+    // 生成したhtmlにパラメータをセット
+    SetParameterModal(data, flg, size);
+  }
+  // モーダル呼び出し
   $('#sampleModal').modal();
 }
 
@@ -707,7 +836,6 @@ function checkedGetIdCnt(jsonString, list) {
   var select = $('.label_checkbox');
   jsonString = jsonString.slice(0, -1);
   jsonString += "}";
-  //console.log(jsonString);
   $('input[id="check1000"]').prop("checked", true);
 
   $(select).click(function() {
@@ -950,7 +1078,37 @@ function deleteBookListdataTablesShow(bookInfoJson){
 }
 
 /**
- * Select all押下でチェック,非チェックをする<br>
+ * チェックオール押下でチェック,非チェックをする<br>
+ *
+ * @memberOf: libraryWeb.js.library.js.<br>
+ * @param: tableのDOM要素.<br>
+ * @returns: void
+ */
+function dataTableBookCheckAcquisition(table){
+
+  // "Select all"コントロールをクリック
+  $('#example-select-all').on('click', function(){
+    // Check/uncheck all checkboxes in the table
+    var rows = table.rows({ 'search': 'applied' }).nodes();
+    $('input[type="checkbox"]', rows).prop('checked', this.checked);
+  });
+
+  // 「すべて選択」コントロールの状態を設定するには、チェックボックスをクリックします。
+  $('#book tbody').on('change', 'input[type="checkbox"]', function(){
+    // チェックボックスがオフの場合
+    if(!this.checked){
+      var el = $('#example-select-all').get(0);
+      // 「すべて選択」コントロールがチェックされ、「不確定」プロパティがある場合
+      if(el && el.checked && ('indeterminate' in el)){
+         // Set visual state of "Select all" control
+         // as 'indeterminate'
+         el.indeterminate = true;
+      }
+    }
+  });
+}
+/**
+ * チェックオール押下でチェック,非チェックをする<br>
  *
  * @memberOf: libraryWeb.js.library.js.<br>
  * @param: tableのDOM要素.<br>
@@ -1068,10 +1226,13 @@ function CheckedBookInformation(){
     // テーブル内のすべてのチェックボックスを繰り返す
     // 画面に表示されていないチェックボックスの状態を取得
     table.$('input[type="checkbox"]').each(function(){
+
       // チェックボックスがDOMに存在しない場合
       if(!$.contains(document, this)){
+
         // チェックボックスがオンの場合
         if(this.checked){
+
           // 隠し要素を作成する
           $(form).append($('<input>').attr('name', this.name).val(this.value));
           bookInfoJson += $(this).val() + ",";
@@ -1313,14 +1474,17 @@ function DisplayLendingConfirmationModal(data, flg) {
   var html = null;
   // ユーザテーブルがある場合
   if(flg == INT_TWO){
-    html = ModalHTMLGeneration(flg);
+    // html生成
+    html = ModalHTMLGeneration(flg, null);
   }
 
   var body = $('.modal-body');
+  // 生成したhtmlを追加
   $(body).appendTo('.modal-body').html(html);
   var size = Object.keys(data).length;
-  SetParameterModal(data, flg);
-    // console.log( data);
+  // 生成したhtmlにパラメータをセット
+  SetParameterModal(data, flg, null);
+  // モーダル呼び出し
   $('#sampleModal').modal();
 }
 
@@ -1331,7 +1495,7 @@ function DisplayLendingConfirmationModal(data, flg) {
  * @param:
  * @returns:String
  */
-function SetParameterModal(data, flg) {
+function SetParameterModal(data, flg, size) {
   var body = $('.modal-body');
   // ユーザ詳細モーダル
   if(flg == INT_ZERO){
@@ -1377,13 +1541,31 @@ function SetParameterModal(data, flg) {
   if(flg == INT_THREE){
     $(body).find('td[name="book-id"]').children().text(data.bookId);
     $(body).find('td[name="title"]').children().text(data.title);
-    $(body).find('td[name="user-id"]').children().text(data.userId);
-    $(body).find('td[name="user-name"]').children().text(data.userName);
     $(body).find('td[name="lending-date"]').children().text(data.lendingDate);
     $(body).find('td[name="return-date"]').children().text(data.returnDate);
     // hiddin要素にパラメータ設定
-    $(body).next().find('input[name="user_id"]').val(data.userId);
-    $(body).next().find('input[name="book_id"]').val(data.bookId);
+    $(body).next().find('input[name="user_id"]').text(data.userId);
+    $(body).next().find('input[name="book_id"]').text(data.bookId);
+  }
+  // 超過者返却確認モーダル
+  if(flg == INT_FOR){
+    // モーダルに遅延ユーザをセット
+    $(body).find('p[name="delay-name"]').prepend('<span name="delay-name">' + data[0].user_name + '</span>');
+    // DOMセット
+    body = $(body).find('tbody').find('tr');
+
+    // 図書数分パラメータをセット
+    for (var i = 0; i < size; i++) {
+      console.log(data[i].book_id);
+      $(body).find('td:eq(1)[name="book-id"]').text(data[i].book_id);
+      $(body).find('td:eq(2)[name="title"]').text(data[i].title);
+      $(body).find('td:eq(3)[name="lending-date"]').text(data[i].lending_date);
+      $(body).find('td:eq(4)[name="return-date"]').text(data[i].return_date);
+      // 次のTR要素にDOMをセット
+      body = $(body).next();
+    }
+    // hiddin要素にパラメータ設定
+    $('.modal-footer').find('input[name="user_id"]').val(data[0].user_id);
   }
 }
   /**
@@ -1393,8 +1575,8 @@ function SetParameterModal(data, flg) {
    * @param:
    * @returns:String
    */
-  function ModalHTMLGeneration(flg) {
-  var htmlGeneration = null;
+  function ModalHTMLGeneration(flg, size) {
+  var htmlGeneration = "";
   // ユーザモーダル
   if(flg == INT_ZERO){
     htmlGeneration = '<div class="">'
@@ -1558,8 +1740,8 @@ function SetParameterModal(data, flg) {
       +'<form id="modal-form" action="" method="get">'
        +'<table id="modal-table" class="table">'
        +'<thead>'
-       +'<th>こちらの図書を返却しますか？</th>'
-      +'</thead>'
+        +'<th>こちらの図書を返却しますか？</th>'
+       +'</thead>'
         +'<tr>'
          +'<th><label>図書ID</label></th>'
          +'<td name="book-id"><span name="span-modal"></span></td>'
@@ -1587,6 +1769,25 @@ function SetParameterModal(data, flg) {
        +'</table>'
       +'</form>'
      +'</div>';
+    return htmlGeneration;
+  }
+  // 超過一覧返却確認モーダル
+  if(flg == INT_FOR){
+    // モーダル内の遅延者表示があれば事前に削除しておく
+    if (($('span[name="delay-name"]').length)) {
+      $('span[name="delay-name"]').remove();
+    }
+    // 遅延図書数分行を追加
+    for (var i = 0; i < size; i++) {
+      htmlGeneration +=
+         '<tr>'
+         +'<td name="check"><input type ="checkbox" /></td>'
+         +'<td name="book-id"></td>'
+         +'<td name="title"></td>'
+         +'<td name="lending-date"></td>'
+         +'<td name="return-date"></td>'
+        +'</tr>';
+    }
     return htmlGeneration;
   }
 }

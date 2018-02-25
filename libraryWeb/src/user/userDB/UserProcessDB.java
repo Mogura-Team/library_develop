@@ -3,11 +3,14 @@ package user.userDB;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import user.userBean.UserProcessBean;
 import user.userDao.UserProcessDao;
 
 import common.Cnst;
+import common.CommonBean;
 import commonJson.JsonUtil;
 
 /**
@@ -18,6 +21,7 @@ import commonJson.JsonUtil;
 public class UserProcessDB {
   private int flag;
   private ResultSet rs;
+  private ResultSet rs_1;
   private UserProcessDao upDao;
 
   /**
@@ -49,7 +53,7 @@ public class UserProcessDB {
         String userId = String.valueOf(rs.getInt(Cnst.PARAM_CREATE_ID.strType()));
 
         //ユーザ登録処理SQL
-        flag = upDao.userRegisteDao(userId, mngUserId, userName, userAddress,
+        flag = upDao.insertUserRegisteDao(userId, mngUserId, userName, userAddress,
             userSexKbn, userPass, userRegisteDate, userAge);
       } catch (SQLException e1) {
         e1.printStackTrace();
@@ -71,7 +75,7 @@ public class UserProcessDB {
     ArrayList<UserProcessBean> userBeanList = new ArrayList<UserProcessBean>();
     try {
       upDao = new UserProcessDao();//Daoクラスインスタンス化
-      rs = upDao.getUserListDao();//ユーザ情報取得メソッド
+      rs = upDao.selectUserListDao();//ユーザ情報取得メソッド
 
       //検索結果を1レコードずつ処理
 
@@ -136,11 +140,11 @@ public class UserProcessDB {
 
     try {
       upDao = new UserProcessDao();//Daoクラスインスタンス化
-      rs = upDao.getLendingUserListDao();//図書情報取得メソッド
+      rs = upDao.selectLendingUserListDao();//図書情報取得メソッド
 
       //検索結果を1レコードずつ処理
       while (rs.next()) {
-        //図書一覧を格納するbeanクラスインスタンス化
+        //ユーザ一覧を格納するbeanクラスインスタンス化
         UserProcessBean userBean = new UserProcessBean();
         userBean.setUserId(rs.getString(Cnst.PARAM_USER_ID.strType()));
         userBean.setUserName(rs.getString(Cnst.PARAM_USER_NAME.strType()));
@@ -156,6 +160,80 @@ public class UserProcessDB {
       upDao.close();
     }
     return userBeanList;
+  }
+
+  /**
+   * @method: UserProcessDB
+   * @discription: 超過者情報格取得処理を行う
+   * @projectPass: libraryWeb.user.userDB.UserProcessDB.java
+   * @return ArrayList<UserProcessBean>
+   */
+  public ArrayList<CommonBean> LendingExcessPersonList() {
+
+    // 超過者リスト格納用
+    ArrayList<CommonBean> commonBeanList = new ArrayList<CommonBean>();
+
+    try {
+      upDao = new UserProcessDao();//Daoクラスインスタンス化
+
+      rs = upDao.selectLendingExcessPersonListDao();
+
+      int count = 0;
+      //検索結果を1レコードずつ処理
+      while (rs.next()) {
+        //超過者一覧を格納するbean
+        CommonBean commonBean = new CommonBean();
+
+        commonBean.setCount(rs.getString(Cnst.PARAM_COUNT.strType()));
+        commonBean.setUserId(rs.getString(Cnst.PARAM_USER_ID.strType()));
+        commonBean.setUserName(rs.getString(Cnst.PARAM_USER_NAME.strType()));
+        commonBean.setUserAddress(rs.getString(Cnst.PARAM_USER_ADDRESS.strType()));
+        commonBean.setUserSexKbn(rs.getString(Cnst.PARAM_USER_SEX_KBN.strType()));
+        commonBean.setUserAge(rs.getString(Cnst.PARAM_USER_AGE.strType()));
+        commonBeanList.add(commonBean);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      // 処理終了時に各接続を解除
+      upDao.close();
+    }
+    return commonBeanList;
+  }
+
+  /**
+   * @method: UserProcessDB
+   * @discription: 超過図書情報格取得処理を行う
+   * @projectPass: libraryWeb.user.userDB.UserProcessDB.java
+   * @return ArrayList<UserProcessBean>
+   */
+  public ArrayList<Map<String, Object>> LendingExcessBookList() {
+
+    // 超過図書情報格納用
+    ArrayList<Map<String, Object>> bookMap = new ArrayList<Map<String, Object>>();
+    try {
+      upDao = new UserProcessDao();//Daoクラスインスタンス化
+
+      rs = upDao.selectLendingExcessBookListDao();
+
+        //検索結果を1レコードずつ処理
+        while (rs.next()) {
+          Map<String,Object> map = new HashMap<String,Object>();
+          //モーダル用の超過した図書一覧を格納する
+          map.put(Cnst.PARAM_USER_ID.strType(),rs.getString(Cnst.PARAM_USER_ID.strType()));
+          map.put(Cnst.PARAM_BOOK_ID.strType(),rs.getString(Cnst.PARAM_BOOK_ID.strType()));
+          map.put(Cnst.PARAM_TITLE.strType(),rs.getString(Cnst.PARAM_TITLE.strType()));
+          map.put(Cnst.PARAM_LENDING_DATE.strType(),rs.getString(Cnst.PARAM_LENDING_DATE.strType()));
+          map.put(Cnst.PARAM_RETURN_DATE.strType(),rs.getString(Cnst.PARAM_RETURN_DATE.strType()));
+          bookMap.add(map);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      // 処理終了時に各接続を解除
+      upDao.close();
+    }
+    return bookMap;
   }
 
 }

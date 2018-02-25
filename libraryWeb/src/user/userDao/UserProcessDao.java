@@ -50,7 +50,7 @@ public class UserProcessDao {
    * @return int
    * @throws SQLException
    */
-  public int userRegisteDao(String userId, String mngUserId, String userName, String userAddress, String userSexKbn,
+  public int insertUserRegisteDao(String userId, String mngUserId, String userName, String userAddress, String userSexKbn,
       String userPass, String userAge, String userRegisteDate) throws SQLException {
 
     try {
@@ -58,7 +58,7 @@ public class UserProcessDao {
       Class.forName(cb.getDriver());
 
       // データベースと接続
-      con = DriverManager.getConnection(cb.getHost(), cb.getName(),cb.getPass());
+      con = DriverManager.getConnection(cb.getHost(), cb.getName(), cb.getPass());
       con.setAutoCommit(false);
 
       // SQL文を生成
@@ -107,11 +107,10 @@ public class UserProcessDao {
    * @method: UserProcessDao
    * @discription: ユーザ情報一覧を取得
    * @projectPass: libraryWeb.user.userDao.UserProcessDao.java
-   * @return
+   * @return ResultSet
    * @throws SQLException
-   * ResultSet
    */
-  public ResultSet getUserListDao() throws SQLException {
+  public ResultSet selectUserListDao() throws SQLException {
     try {
       // JDBCドライバのロード
       Class.forName(cb.getDriver());
@@ -120,12 +119,6 @@ public class UserProcessDao {
       con = DriverManager.getConnection(cb.getHost(), cb.getName(),
           cb.getPass());
 
-      /*
-       * SQL文を生成
-       * テーブルを結合し、図書貸し出し状態も取得する
-       * テーブル別名：T_USER_INFO ->TUI
-       * T_USER_STATUS ->UST
-       */
       ps = con.prepareStatement("select * from T_USER_INFO TUI"
           + " join T_USER_STATUS TUS on TUI.user_id = TUS.user_id");
 
@@ -142,7 +135,7 @@ public class UserProcessDao {
 
   /**
    * @method: UserProcessDao
-   * @discription: ユーザ情報,ユーザ状態管理レコード削除
+   * @discription: ユーザ情報,ユーザ状態管理削除
    * @projectPass: libraryWeb.user.userDao.UserProcessDao.java
    * @param userId
    * @return int
@@ -214,11 +207,10 @@ public class UserProcessDao {
    * @method: UserProcessDao
    * @discription: 貸出中のユーザ一覧取得SQL
    * @projectPass: libraryWeb.user.userDao.UserProcessDao.java
-   * @return
+   * @return ResultSet
    * @throws SQLException
-   * ResultSet
    */
-  public ResultSet getLendingUserListDao() throws SQLException {
+  public ResultSet selectLendingUserListDao() throws SQLException {
     try {
       // コネクション格納クラスインスタンス
       // JDBCドライバのロード
@@ -229,19 +221,10 @@ public class UserProcessDao {
       con = DriverManager.getConnection(cb.getHost(), cb.getName(),
           cb.getPass());
 
-      /*
-       * SQL文を生成
-       * テーブルを結合し、図書貸し出し状態も取得する
-       * テーブル別名：T_USER_INFO ->TUI
-       * T_BOOK_INFO ->TBI
-       * T_LENDING_BOOK_TMP ->TLBT
-       */
       ps = con.prepareStatement("select TUI.user_id , TUI.user_name , TUI.user_address "
           + ", TUI.user_sex_kbn , TUI.user_age from "
           + "T_BOOK_INFO TBI inner join T_LENDING_BOOK_TMP TLBT ON TBI.book_id = TLBT.book_id "
           + "inner join T_USER_INFO TUI on TUI.user_id = TLBT.user_id");
-
-      // 生成したSQL文の「？」の部分に引数の変数をセット
 
       // SQLを実行
       rs = ps.executeQuery();
@@ -254,31 +237,67 @@ public class UserProcessDao {
     return rs;
   }
 
-  public ResultSet selectLendingExceedingPersonList() throws SQLException {
+  public ResultSet selectLendingExcessPersonListDao() throws SQLException {
     try {
-      // コネクション格納クラスインスタンス
+
       // JDBCドライバのロード
-      // 「com.mysql.jdbc.Driver」クラス名
       Class.forName(cb.getDriver());
 
       // データベースと接続
       con = DriverManager.getConnection(cb.getHost(), cb.getName(),
           cb.getPass());
 
-      /*
-       * SQL文を生成
-       * テーブルを結合し、図書貸し出し状態も取得する
-       * テーブル別名：T_USER_INFO ->TUI
-       * T_BOOK_INFO ->TBI
-       * T_LENDING_BOOK_TMP ->TLBT
-       */
-      ps = con.prepareStatement("select TUI.user_id , TUI.user_name , TUI.user_address "
-          + ",TBI.book_id , TBI.title TLBT.lending_date , TLBT.return_date from "
-          + "T_BOOK_INFO TBI inner join T_LENDING_BOOK_TMP TLBT on TBI.book_id = TLBT.book_id "
-          + "inner join T_USER_INFO TUI on TUI.user_id = TLBT.user_id");
+      ps = con.prepareStatement("select"
+                                +" count(tlbt.BOOK_ID) as count,"
+                                +" tui.USER_ID,"
+                                +" tui.USER_NAME,"
+                                +" USER_ADDRESS,"
+                                +" USER_SEX_KBN,"
+                                +" USER_AGE"
+                              +" from"
+                                +" t_lending_book_tmp tlbt left join t_user_status tus on tlbt.USER_ID = tus.USER_ID"
+                                +" left join t_user_info tui on tui.USER_ID = tlbt.USER_ID"
+                                +" where"
+                                +" tlbt.RETURN_DATE < date(now())"
+                              +" group by"
+                                +" tlbt.USER_ID"
+                              +" having"
+                                +" count(book_id) > 0"
+                              +" order by"
+                                +" tlbt.USER_ID");
+      // SQLを実行
+      rs = ps.executeQuery();
 
-      // 生成したSQL文の「？」の部分に引数の変数をセット
+    } catch (ClassNotFoundException ce) {
 
+      // JDBCドライバが見つからなかった場合
+      ce.printStackTrace();
+    }
+    return rs;
+  }
+  public ResultSet selectLendingExcessBookListDao() throws SQLException {
+    try {
+
+      // JDBCドライバのロード
+      Class.forName(cb.getDriver());
+
+      // データベースと接続
+      con = DriverManager.getConnection(cb.getHost(), cb.getName(),
+          cb.getPass());
+
+      ps = con.prepareStatement("select"
+                                +" tlbt.USER_ID,"
+                                +" tlbt.BOOK_ID,"
+                                +" tbi.TITLE,"
+                                +" tlbt.LENDING_DATE,"
+                                +" tlbt.RETURN_DATE"
+                              +" from"
+                                +" t_lending_book_tmp tlbt"
+                                +" left join t_book_info tbi on tlbt.BOOK_ID = tbi.BOOK_ID"
+                              +" where"
+                                +" tlbt.RETURN_DATE < date(now())"
+                              +" order by"
+                                +" tlbt.BOOK_ID");
       // SQLを実行
       rs = ps.executeQuery();
 
@@ -329,15 +348,15 @@ public class UserProcessDao {
       con = DriverManager.getConnection(cb.getHost(), cb.getName(), cb.getPass());
       con.setAutoCommit(true);
 
-    // シーケンス番号をインクリメント
-    ps = con.prepareStatement("UPDATE SEQUENCE_USER_ID SET ID = LAST_INSERT_ID(ID + 1)");
-    // SQLを実行
-    flag = ps.executeUpdate();
+      // シーケンス番号をインクリメント
+      ps = con.prepareStatement("UPDATE SEQUENCE_USER_ID SET ID = LAST_INSERT_ID(ID + 1)");
+      // SQLを実行
+      flag = ps.executeUpdate();
 
-    // 最新のユーザIDを取得
-    ps = con.prepareStatement("SELECT LAST_INSERT_ID()");
-    // SQLを実行
-    rs = ps.executeQuery();
+      // 最新のユーザIDを取得
+      ps = con.prepareStatement("SELECT LAST_INSERT_ID()");
+      // SQLを実行
+      rs = ps.executeQuery();
 
     } catch (ClassNotFoundException ce) {
       // ドライバが見つからなかったとき
@@ -373,12 +392,11 @@ public class UserProcessDao {
 
   /**
    * @method: BookProcessDao
-   * @discription: 標準DELETE SQL文を生成する.
+   * @discription: ユーザ情報,ユーザ状態管理削除用SQL文を生成する.
    * @projectPass: libraryWeb.book.bookDao.BookProcessDao.java
    * @param idList
    * @param param
-   * @return
-   *         String
+   * @return String
    */
   public String makeDeleteSql(ArrayList<String> idList, String param) {
 

@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import manage.manageBean.ManageProcessBean;
 import user.userBean.UserProcessBean;
 import user.userDB.UserProcessDB;
+import book.bookDB.BookProcessDB;
+
 import common.Cnst;
 import common.CommonMethod;
 import common.FormCheck;
@@ -85,6 +87,43 @@ public class UserProcessServlet extends HttpServlet {
         request.setAttribute(Cnst.ATTR_RESULT.strType(), Cnst.PARAM_DELETE_ERROR.strType());
         // 次画面のセット
         rd = request.getRequestDispatcher(Cnst.RESULT_ERROR_JSP.strType());
+        // 遷移処理
+        rd.forward(request, response);
+      }
+    }
+    // 超過者一覧画面モーダルの決定ボタン押した場合
+    if (Cnst.BTN_RETURN_DECISION.strType().equals(buttonLabel)) {
+
+      // 図書ID格納用
+      ArrayList<String> arrayBookId = new ArrayList<String>();
+      commonMethod = new CommonMethod();
+
+      // ユーザID格納
+      String userId = request.getParameter(Cnst.PARAM_USER_ID.strType());
+      // 図書ID一時格納
+      String[] tmpBookId = request.getParameterValues(Cnst.PARAM_BOOK_ID.strType());
+
+      // リストに変換し、格納する
+      arrayBookId = commonMethod.ConvertingFromArrayToArraylist(tmpBookId);
+      BookProcessDB bpDB = new BookProcessDB();
+
+      // 返却処理
+      int flag = bpDB.returnRegiste(arrayBookId, userId);
+
+      // 返却失敗の場合
+      if(flag == Cnst.INT_ZERO.intType()){
+        // 処理結果画面のパラメータセット
+        request.setAttribute(Cnst.ATTR_RESULT.strType(), Cnst.PARAM_RETURN_ERROR.strType());
+        // 次画面のセット
+        rd = request.getRequestDispatcher(Cnst.RESULT_ERROR_JSP.strType());
+        // 遷移処理
+        rd.forward(request, response);
+      } else {
+        // 返却成功の場合
+        // 処理結果画面のパラメータセット
+        request.setAttribute(Cnst.ATTR_RESULT.strType(), Cnst.PARAM_RETURN_COMPLETED.strType());
+        // 次画面のセット
+        rd = request.getRequestDispatcher(Cnst.RESULT_JSP.strType());
         // 遷移処理
         rd.forward(request, response);
       }

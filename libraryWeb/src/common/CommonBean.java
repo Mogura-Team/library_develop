@@ -63,8 +63,10 @@ public class CommonBean implements Serializable {
   private String userHistory;
   /** 貸出回数 **/
   private String userNumLending;
-  /** 遅延回数 **/
+  /** 合計遅延回数 **/
   private String delayNum;
+  /** 遅延冊数 **/
+  private String count;
 
   public CommonBean() {
     this.bookId = "";
@@ -319,4 +321,13 @@ public class CommonBean implements Serializable {
   public void setDelayNum(String delayNum) {
     this.delayNum = delayNum;
   }
+
+  public String getCount() {
+    return count;
+  }
+
+  public void setCount(String count) {
+    this.bookId = count;
+  }
+
 }

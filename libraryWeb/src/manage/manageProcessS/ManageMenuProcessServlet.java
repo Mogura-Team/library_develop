@@ -1,9 +1,8 @@
 package manage.manageProcessS;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -94,25 +93,18 @@ public class ManageMenuProcessServlet extends HttpServlet {
       // 貸出超過者一覧ボタンを押した場合
       if (Cnst.BTN_LENDING_EXCESS_PERSON_LIST.strType().equals(buttonLabel)) {
 
-        BookProcessDB bpDB = new BookProcessDB();
-        ArrayList<CommonBean> commonBean = bpDB.LendingList();
-
-        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), commonBean);
-
         UserProcessDB upDB = new UserProcessDB();
-        ArrayList<UserProcessBean> userBeanList = upDB.getLendingUserList();
+        // 超過者情報取得する
+        ArrayList<CommonBean> LendingExcessPersonList = upDB.LendingExcessPersonList();
+        request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), LendingExcessPersonList);
 
-        request.setAttribute(Cnst.ATTR_USER_BEAN.strType(), userBeanList);
+        // 超過図書情報取得する
+        ArrayList<Map<String, Object>> LendingExcessBookList = upDB.LendingExcessBookList();
+        request.setAttribute(Cnst.ATTR_BOOK_BEAN.strType(), LendingExcessBookList);
 
         // 貸出超過者一覧フラグセット
-        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(), Cnst.PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY.strType());
-
-        //現在の日付を取得
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat(Cnst.DATE_FORMAT.strType());
-        String nowDate = sdf.format(c.getTime());
-
-        request.setAttribute("nowDate", nowDate);
+        request.setAttribute(Cnst.ATTR_DISPLAY_INFO.strType(),
+            Cnst.PARAM_LENDING_EXCESS_PERSON_LIST_DISPLAY.strType());
 
         rd = request.getRequestDispatcher(Cnst.EXCEEDING_PERSON_LIST_JSP.strType());
         rd.forward(request, response);
