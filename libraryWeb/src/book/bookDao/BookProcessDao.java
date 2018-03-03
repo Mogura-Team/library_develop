@@ -141,14 +141,14 @@ public class BookProcessDao {
    *               貸出中の情報登録
    * @projectPass: libraryWeb.book.bookDao.BookProcessDao.java
    * @param userId
-   * @param bookId
+   * @param arrayBookId
    * @param lendingDate
    * @param returnDate
    * @param mngUserId
    * @return int
    * @throws SQLException
    */
-  public int lendRegisteDao(String userId, ArrayList<String> bookId,
+  public int lendRegisteDao(String userId, ArrayList<String> arrayBookId,
       String lendingDate, String returnDate, String mngUserId)
       throws SQLException {
     // makeSqlメソッドの判定用
@@ -168,7 +168,7 @@ public class BookProcessDao {
       // makeSqlメソッドの判定用
       param = UPDATE_T_BOOK_STATUS;
       // SQL文を生成
-      ps = con.prepareStatement(makeLendRegisteSql(userId, bookId,
+      ps = con.prepareStatement(makeLendRegisteSql(userId, arrayBookId,
           lendingDate, returnDate, mngUserId,param));
       // SQLを実行
       flag = ps.executeUpdate();
@@ -177,7 +177,7 @@ public class BookProcessDao {
       // makeSqlメソッドの判定用
       param = UPDATE_T_USER_STATUS;
       // SQL文を生成
-      ps = con.prepareStatement(makeLendRegisteSql(null, bookId, null, null, null, param));
+      ps = con.prepareStatement(makeLendRegisteSql(null, arrayBookId, null, null, null, param));
       // SQL文の「？」に変数をセット
       ps.setString(1, userId);
       // SQLを実行
@@ -187,7 +187,7 @@ public class BookProcessDao {
       // makeSqlメソッドの判定用
       param = INSERT_T_LENDING_BOOK_TMP;
       // SQL文を生成
-      ps = con.prepareStatement(makeLendRegisteSql(userId, bookId, lendingDate,
+      ps = con.prepareStatement(makeLendRegisteSql(userId, arrayBookId, lendingDate,
           returnDate, mngUserId, param));
       // SQLを実行
       flag = ps.executeUpdate();
@@ -211,11 +211,11 @@ public class BookProcessDao {
    * @discription: 貸出中の情報を削除,図書状態管理,ユーザ状態管理更新<br>
    * @projectPass: libraryWeb.book.bookDao.BookProcessDao.java
    * @param userId
-   * @param bookId
+   * @param arrayBookId
    * @return int
    * @throws SQLException
    */
-  public int returnRegisteDao(String userId, ArrayList<String> bookId)
+  public int returnRegisteDao(String userId, ArrayList<String> arrayBookId)
       throws SQLException {
     // makeSqlメソッドの判定用
     String param = "";
@@ -234,24 +234,25 @@ public class BookProcessDao {
       // makeSqlメソッドの判定用
       param = UPDATE_T_BOOK_STATUS;
       // SQL文を生成
-      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, param));
+      ps = con.prepareStatement(makeReturnRegisteSql(userId, arrayBookId, null, param));
       // SQLを実行
       flag = ps.executeUpdate();
 
       //遅延返却ならユーザ状態管理を更新する
       // makeSqlメソッドの判定用
       param = UPDATE_T_USER_STATUS;
-      // SQL文を生成
-      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, param));
-
-      // SQLを実行
-      flag = ps.executeUpdate();
+      // 図書数分SQL文を生成
+      for (int i = 0; i < arrayBookId.size(); i++) {
+        ps = con.prepareStatement(makeReturnRegisteSql(userId, null, arrayBookId.get(i), param));
+        // SQLを実行
+        flag = ps.executeUpdate();
+      }
 
       //貸出中の情報を削除する
       // makeSqlメソッドの判定用
       param = DELETE_T_LENDING_BOOK_TMP;
       // SQL文を生成
-      ps = con.prepareStatement(makeReturnRegisteSql(userId, bookId, param));
+      ps = con.prepareStatement(makeReturnRegisteSql(userId, arrayBookId, null, param));
       // SQLを実行
       flag = ps.executeUpdate();
 
@@ -468,11 +469,13 @@ public class BookProcessDao {
    * @discription: 貸出処理用SQLを生成する.
    * @projectPass: libraryWeb.book.bookDao.BookProcessDao.java
    * @param userId
-   * @param bookId
+   * @param arrayBookId
+   * @param lendingDate
+   * @param returnDate
    * @param param
    * @return String
    */
-  public String makeLendRegisteSql(String userId, ArrayList<String> bookId,
+  public String makeLendRegisteSql(String userId, ArrayList<String> arrayBookId,
       String lendingDate, String returnDate, String mngUserId,String param) {
     // SQLセット用
     String setSql = null;
@@ -483,8 +486,8 @@ public class BookProcessDao {
     if (UPDATE_T_BOOK_STATUS.equals(param)) {
       setSql = "update T_BOOK_STATUS set BOOK_LEND_HISTORY = case BOOK_ID";
 
-      for (int count = 0; count < bookId.size(); count++) {
-        setSql += " WHEN " + bookId.get(count) + " THEN CONCAT(BOOK_LEND_HISTORY, '" + userId + ",')";
+      for (int count = 0; count < arrayBookId.size(); count++) {
+        setSql += " WHEN " + arrayBookId.get(count) + " THEN CONCAT(BOOK_LEND_HISTORY, '" + userId + ",')";
       }
       setSql += "END"
              + ", BOOK_NUM_LENDING = BOOK_NUM_LENDING + 1"
@@ -492,8 +495,8 @@ public class BookProcessDao {
              + " WHERE BOOK_ID IN (";
 
 
-      for (int count = 0; count < bookId.size(); count++) {
-        questions.append(",'" + bookId.get(count) + "'");
+      for (int count = 0; count < arrayBookId.size(); count++) {
+        questions.append(",'" + arrayBookId.get(count) + "'");
       }
       sql = setSql + questions.toString().replaceFirst(",", "") + ")";
       // SQL確認用
@@ -508,13 +511,13 @@ public class BookProcessDao {
       // 図書ID連列用
       StringBuffer bookIdJoin = new StringBuffer();
       // bookIdのサイズ分ループ処理
-      for (int count = 0; count < bookId.size(); count++) {
-        bookIdJoin.append("," + bookId.get(count));
+      for (int count = 0; count < arrayBookId.size(); count++) {
+        bookIdJoin.append("," + arrayBookId.get(count));
       }
       // 最初のカンマを削除する
       String setBookId = bookIdJoin.toString().replaceFirst(",", "") + "";
       // 本数取得
-      numBook = bookId.size();
+      numBook = arrayBookId.size();
 
       sql = "update T_USER_STATUS set USER_HISTORY = '" + setBookId + "',"
           + "user_num_lending = user_num_lending + " + numBook + " where user_id = ?";
@@ -527,8 +530,8 @@ public class BookProcessDao {
       // SQLセット用
       StringBuffer SBsetSql = new StringBuffer();
       // 借りる本数分生成
-      for (int count = 0; count < bookId.size(); count++) {
-        SBsetSql.append("('" + bookId.get(count) + "','" + userId + "','" + lendingDate + "','" + returnDate + "','"
+      for (int count = 0; count < arrayBookId.size(); count++) {
+        SBsetSql.append("('" + arrayBookId.get(count) + "','" + userId + "','" + lendingDate + "','" + returnDate + "','"
             + mngUserId + "'),");
       }
       // 最後のカンマを削除する
@@ -552,7 +555,7 @@ public class BookProcessDao {
    * @param param
    * @return String
    */
-  public String makeReturnRegisteSql(String userId, ArrayList<String> bookId,String param) {
+  public String makeReturnRegisteSql(String userId, ArrayList<String> arrayBookId, String bookId, String param) {
     // SQLセット用
     String setSql = "";
     // sql文格納
@@ -566,18 +569,19 @@ public class BookProcessDao {
                       +" book_lend_status = CASE"
                     +" WHEN book_id =");
 
-      for (int count = 0; count < bookId.size(); count++) {
-        SBsetSql.append(" ('" + bookId.get(count) + "'OR");
+      for (int count = 0; count < arrayBookId.size(); count++) {
+        SBsetSql.append(" ('" + arrayBookId.get(count) + "') OR");
       }
 
       // 最後のORを削除する
       int index = SBsetSql.lastIndexOf("OR");
       SBsetSql.delete(index,index + Cnst.INT_TWO.intType());
 
-      SBsetSql.append(")THEN 0 end WHERE book_id IN(");
-      for (int count = 0; count < bookId.size(); count++) {
-        SBsetSql.append("'"+ bookId.get(count)+"',)");
+      SBsetSql.append("THEN 0 end WHERE book_id IN(");
+      for (int count = 0; count < arrayBookId.size(); count++) {
+        SBsetSql.append("'"+ arrayBookId.get(count)+"',");
       }
+      SBsetSql.append(")");
       // 最後のカンマを削除する
       index = SBsetSql.lastIndexOf(",");
       SBsetSql.deleteCharAt(index);
@@ -604,15 +608,13 @@ public class BookProcessDao {
          +" WHERE";
 
      // 図書数分生成
-     for (int count = 0; count < bookId.size(); count++) {
-        SBsetSql.append("(count.book_id ='" + bookId.get(count) + "'AND count.return_date < DATE(NOW()))) OR");
-      }
+        SBsetSql.append("(count.book_id ='" + bookId + "'AND count.return_date < DATE(NOW()))) OR");
 
       // 最後のORを削除する
       int index = SBsetSql.lastIndexOf("OR");
       SBsetSql.delete(index,index + Cnst.INT_TWO.intType());
 
-      SBsetSql.append(" WHERE tus.user_id = '"+userId+"'");
+      SBsetSql.append(" WHERE tus.user_id = '"+ userId +"'");
       sql += SBsetSql;
 
 
@@ -627,8 +629,8 @@ public class BookProcessDao {
          +" WHERE";
 
       // 図書数分生成
-      for (int count = 0; count < bookId.size(); count++) {
-        SBsetSql.append("(user_id = '"+ userId +"' AND book_id = '"+ bookId.get(count) +"')OR");
+      for (int count = 0; count < arrayBookId.size(); count++) {
+        SBsetSql.append("(user_id = '"+ userId +"' AND book_id = '"+ arrayBookId.get(count) +"') OR ");
       }
 
       // 最後のORを削除する

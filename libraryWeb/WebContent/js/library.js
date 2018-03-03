@@ -705,30 +705,70 @@ function dataTableUserCheckAcquisition(table){
   });
 }
 /**
- * 超過者一覧のモーダルチェックオール押下でチェック,非チェックをする<br>
+ * 超過者一覧のモーダル。チェックオール押下処理をする<br>
  *
  * @memberOf: libraryWeb.js.library.js.<br>
  * @returns: void
  */
 function LendingExcessModalCheckAcquisition(){
-  var table = $('#modal-table');
-  // "Select all"コントロールをクリック
-  $('#check-all').on('click', function(){
-    // Check/uncheck all checkboxes in the table
-    var rows = $(table).rows(0).nodes();
-    $('input[type="checkbox"]', rows).prop('checked', this.checked);
+
+  var table = $('#modal-table');// DOM要素
+  // オールチェックボタン押下
+  $('#check-all').on('click', function() {
+    // trueかfalseが格納される
+    var checkboxValue = $(this).prop('checked');
+    $('.check-all').prop('checked', checkboxValue);
+    $('.list-check').prop('checked', checkboxValue);
+
+    // チェックされてたら、図書IDを格納する
+    checkedNum = $('[class="list-check"]:checked').map(function () {
+      return $(this).parent().next().text();
+    }).get();
+    // hiddenに図書IDを格納
+    $('.modal-footer').find('input[name="book_id"]').val(checkedNum);
   });
 
-  // 「すべて選択」コントロールの状態を設定するには、チェックボックスをクリック
-  $('#modal-table tbody').on('change', 'input[type="checkbox"]', function(){
-    // チェックボックスがオフの場合
-    if(!this.checked){
-      var el = $('#check-all').get(0);
-      // 「すべて選択」コントロールがチェックされ、「不確定」プロパティがある場合
-      if(el && el.checked && ('indeterminate' in el)){
-         el.indeterminate = true;
-      }
-    }
+}
+
+/**
+ * 超過者一覧のモーダル。リスト毎のチェックボックス押下処理をする<br>
+ *
+ * @memberOf: libraryWeb.js.library.js.<br>
+ * @returns: void
+ */
+function LendingExcessModalCheckRowList() {
+
+  // チェックボタン押下
+  $(document).on('change', '.list-check', function() {
+    var allChecked = true; //オールチェックフラグ
+    var checkedNum = []; //チェックされた図書ID格納用
+    $('.list-check').each(function() {
+      allChecked &= $(this).prop('checked');
+    });
+    // チェックされてたら、図書IDを格納する
+    checkedNum = $('[class="list-check"]:checked').map(function () {
+      return $(this).parent().next().text();
+    }).get();
+    // hiddenに図書IDを格納
+    $('.modal-footer').find('input[name="book_id"]').val(checkedNum);
+
+    $('#check-all').prop('checked', allChecked);
+  });
+}
+
+/**
+ * 超過者一覧のモーダル。決定ボタン押下処理をする<br>
+ *
+ * @memberOf: libraryWeb.js.library.js.<br>
+ * @returns: void
+ */
+function bulkReturnSubmit(){
+  var table = $('#modal-table');
+  // "Select all"コントロールをクリック
+  $('#bulk-return-submit').on('click', function() {
+    var checkboxValue = $(this).prop('checked');
+    $('.check-all').prop('checked', checkboxValue);
+    $('.list-check').prop('checked', checkboxValue);
   });
 }
 
@@ -801,8 +841,8 @@ function DisplayModal(data, flg) {
   var body = $('.modal-body');
 
   // ユーザ一覧,図書一覧,貸出確認,貸出中一覧の場合,モーダル表示
-  if((flg == INT_ZERO) || (flg == INT_ONE)
-      || (flg == INT_THREE)){
+  if((flg == INT_ZERO) || (flg == INT_ONE) ||
+     (flg == INT_TWO) || (flg == INT_THREE)){
     // html生成
     html = ModalHTMLGeneration(flg, null);
     // 生成したhtmlを追加
@@ -1541,11 +1581,13 @@ function SetParameterModal(data, flg, size) {
   if(flg == INT_THREE){
     $(body).find('td[name="book-id"]').children().text(data.bookId);
     $(body).find('td[name="title"]').children().text(data.title);
+    $(body).find('td[name="user-id"]').children().text(data.userId);
+    $(body).find('td[name="user-name"]').children().text(data.userName);
     $(body).find('td[name="lending-date"]').children().text(data.lendingDate);
     $(body).find('td[name="return-date"]').children().text(data.returnDate);
     // hiddin要素にパラメータ設定
-    $(body).next().find('input[name="user_id"]').text(data.userId);
-    $(body).next().find('input[name="book_id"]').text(data.bookId);
+    $(body).next().find('input[name="user_id"]').val(data.userId);
+    $(body).next().find('input[name="book_id"]').val(data.bookId);
   }
   // 超過者返却確認モーダル
   if(flg == INT_FOR){
@@ -1556,12 +1598,11 @@ function SetParameterModal(data, flg, size) {
 
     // 図書数分パラメータをセット
     for (var i = 0; i < size; i++) {
-      console.log(data[i].book_id);
       $(body).find('td:eq(1)[name="book-id"]').text(data[i].book_id);
       $(body).find('td:eq(2)[name="title"]').text(data[i].title);
       $(body).find('td:eq(3)[name="lending-date"]').text(data[i].lending_date);
       $(body).find('td:eq(4)[name="return-date"]').text(data[i].return_date);
-      // 次のTR要素にDOMをセット
+      // DOMに次のTR要素をセット
       body = $(body).next();
     }
     // hiddin要素にパラメータ設定
@@ -1781,7 +1822,7 @@ function SetParameterModal(data, flg, size) {
     for (var i = 0; i < size; i++) {
       htmlGeneration +=
          '<tr>'
-         +'<td name="check"><input type ="checkbox" /></td>'
+         +'<td><input class="list-check"type ="checkbox" /></td>'
          +'<td name="book-id"></td>'
          +'<td name="title"></td>'
          +'<td name="lending-date"></td>'
