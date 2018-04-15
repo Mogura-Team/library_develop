@@ -3,6 +3,7 @@
 	<name>libraryWeb</name>
 	<comment></comment>
 	<projects>
+		<project>MyBatisSample</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
